@@ -3,30 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>シンプル日記アプリ</title>
-    <link rel="stylesheet" href="style.css">
+    <title>日記アプリ</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(to right, #a8e0ff, #f9f9f9);
+            height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        #entryForm {
+            margin-bottom: 20px;
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .entry {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+        .delete-button {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            background-color: red;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+            padding: 5px 10px;
+        }
+        textarea {
+            width: 100%;
+            height: 80px;
+            margin-top: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 10px;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>日記アプリ</h1>
-
-        <div class="diary-input">
-            <h2>新しい日記を書く</h2>
-            <input type="date" id="diaryDate" class="input-field">
-            <input type="text" id="diaryTitle" placeholder="タイトル" class="input-field">
-            <textarea id="diaryContent" placeholder="今日の出来事を記録しよう..." class="input-field"></textarea>
-            <button id="saveDiary" class="btn primary">日記を保存</button>
-        </div>
-
-        <div class="diary-list">
-            <h2>過去の日記</h2>
-            <input type="text" id="searchKeyword" placeholder="キーワードで検索" class="input-field">
-            <button id="searchDiary" class="btn secondary">検索</button>
-            <ul id="diariesContainer">
-                </ul>
-        </div>
+    <h1>日記アプリ</h1>
+    <div id="entryForm">
+        <input type="text" id="title" placeholder="タイトル" required>
+        <textarea id="content" placeholder="内容" required></textarea>
+        <button onclick="addEntry()">エントリーを追加</button>
     </div>
+    <div id="entries"></div>
 
-    <script src="script.js"></script>
+    <script>
+        function saveEntries() {
+            localStorage.setItem('diaryEntries', JSON.stringify(entries));
+        }
+
+        function loadEntries() {
+            const savedEntries = localStorage.getItem('diaryEntries');
+            return savedEntries ? JSON.parse(savedEntries) : [];
+        }
+
+        const entries = loadEntries();
+        displayEntries();
+
+        function addEntry() {
+            const title = document.getElementById('title').value;
+            const content = document.getElementById('content').value;
+
+            if (title && content) {
+                const entry = {
+                    title: title,
+                    content: content,
+                    date: new Date().toLocaleString()
+                };
+                entries.push(entry);
+                saveEntries();
+                displayEntries();
+                clearForm();
+            } else {
+                alert("タイトルと内容を入力してください。");
+            }
+        }
+
+        function displayEntries() {
+            const entriesDiv = document.getElementById('entries');
+            entriesDiv.innerHTML = '';
+
+            entries.forEach((entry, index) => {
+                const entryDiv = document.createElement('div');
+                entryDiv.className = 'entry';
+                entryDiv.innerHTML = `
+                    <h3>${entry.title}</h3>
+                    <p>${entry.content}</p>
+                    <small>${entry.date}</small>
+                    <button class="delete-button" onclick="deleteEntry(${index})">削除</button>
+                `;
+                entriesDiv.appendChild(entryDiv);
+            });
+        }
+
+        function deleteEntry(index) {
+            entries.splice(index, 1);
+            saveEntries();
+            displayEntries();
+        }
+
+        function clearForm() {
+            document.getElementById('title').value = '';
+            document.getElementById('content').value = '';
+        }
+    </script>
 </body>
 </html>
