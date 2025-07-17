@@ -504,6 +504,29 @@
             let diaries = [];
             let selectedMood = '';
 
+            // ローカルストレージから日記データを読み込む
+            function loadDiaries() {
+                const storedDiaries = localStorage.getItem('myDiaries');
+                if (storedDiaries) {
+                    try {
+                        diaries = JSON.parse(storedDiaries);
+                    } catch (e) {
+                        console.error('日記データの読み込みに失敗しました:', e);
+                        diaries = [];
+                    }
+                }
+            }
+
+            // 日記データをローカルストレージに保存する
+            function saveDiaries() {
+                try {
+                    localStorage.setItem('myDiaries', JSON.stringify(diaries));
+                } catch (e) {
+                    console.error('日記データの保存に失敗しました:', e);
+                    alert('日記の保存に失敗しました。ブラウザのストレージ容量を確認してください。');
+                }
+            }
+
             // 気分選択の処理
             moodButtons.forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -527,7 +550,7 @@
                 });
                 thisMonthEl.textContent = thisMonthEntries.length;
                 
-                // 連続記録日数の計算（簡単な実装）
+                // 連続記録日数の計算
                 const sortedDiaries = [...diaries].sort((a, b) => new Date(b.date) - new Date(a.date));
                 let streak = 0;
                 let lastDate = null;
@@ -621,6 +644,7 @@
                 };
 
                 diaries.push(newDiary);
+                saveDiaries(); // ローカルストレージに保存
 
                 // フォームをリセット
                 diaryTitleInput.value = '';
@@ -645,6 +669,7 @@
             // 日記を削除する関数
             function deleteDiary(idToDelete) {
                 diaries = diaries.filter(diary => diary.id !== idToDelete);
+                saveDiaries(); // ローカルストレージに保存
                 renderDiaries();
                 updateStats();
             }
@@ -669,7 +694,8 @@
                 }
             });
 
-            // 初期表示
+            // 初期化：ローカルストレージからデータを読み込んで表示
+            loadDiaries();
             renderDiaries();
             updateStats();
         });
